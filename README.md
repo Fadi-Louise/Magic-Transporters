@@ -20,7 +20,7 @@ A REST API for managing **Magic Movers** and **Magic Items**. Magic Movers are s
 - **Database:** MongoDB with Mongoose ODM
 - **DI:** tsyringe (Dependency Injection)
 - **Docs:** Swagger (swagger-jsdoc + swagger-ui-express)
-- **Testing:** Jest + Supertest with mongodb-memory-server
+- **Testing:** Jest + Supertest (e2e tests)
 - **Containerization:** Docker + Docker Compose
 
 ## 🚀 Getting Started
