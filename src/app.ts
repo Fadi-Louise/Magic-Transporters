@@ -33,4 +33,9 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Root route - redirect to API docs
+app.get("/", (_req, res) => {
+  res.redirect("/api-docs");
+});
+
 export default app;
