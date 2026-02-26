@@ -1,5 +1,6 @@
 import { injectable } from "tsyringe";
 import { MagicMover, IMagicMover, MagicItem, ActivityLog } from "../models";
+import { NotFoundError, ValidationError, ConflictError } from "../utils/errors";
 
 /**
  * Service responsible for Magic Mover business logic.
@@ -46,16 +47,16 @@ export class MagicMoverService {
   async loadItem(moverId: string, itemId: string): Promise<IMagicMover> {
     const mover = await MagicMover.findById(moverId).populate("items");
     if (!mover) {
-      throw new Error("Magic Mover not found");
+      throw new NotFoundError("Magic Mover");
     }
 
     if (mover.questState === "on-mission") {
-      throw new Error("Cannot load items while on a mission");
+      throw new ConflictError("Cannot load items while on a mission");
     }
 
     const item = await MagicItem.findById(itemId);
     if (!item) {
-      throw new Error("Magic Item not found");
+      throw new NotFoundError("Magic Item");
     }
 
     // Calculate current load weight
@@ -65,7 +66,7 @@ export class MagicMoverService {
     );
 
     if (currentWeight + item.weight > mover.weightLimit) {
-      throw new Error(
+      throw new ValidationError(
         `Weight limit exceeded. Current: ${currentWeight}, Item: ${item.weight}, Limit: ${mover.weightLimit}`
       );
     }
@@ -75,7 +76,7 @@ export class MagicMoverService {
       (i: any) => i._id.toString() === itemId
     );
     if (alreadyLoaded) {
-      throw new Error("Item is already loaded on this mover");
+      throw new ConflictError("Item is already loaded on this mover");
     }
 
     // Update mover state and add item
@@ -100,15 +101,15 @@ export class MagicMoverService {
   async startMission(moverId: string): Promise<IMagicMover> {
     const mover = await MagicMover.findById(moverId);
     if (!mover) {
-      throw new Error("Magic Mover not found");
+      throw new NotFoundError("Magic Mover");
     }
 
     if (mover.questState === "on-mission") {
-      throw new Error("Mover is already on a mission");
+      throw new ConflictError("Mover is already on a mission");
     }
 
     if (mover.items.length === 0) {
-      throw new Error("Cannot start a mission with no items loaded");
+      throw new ValidationError("Cannot start a mission with no items loaded");
     }
 
     mover.questState = "on-mission";
@@ -131,11 +132,11 @@ export class MagicMoverService {
   async endMission(moverId: string): Promise<IMagicMover> {
     const mover = await MagicMover.findById(moverId);
     if (!mover) {
-      throw new Error("Magic Mover not found");
+      throw new NotFoundError("Magic Mover");
     }
 
     if (mover.questState !== "on-mission") {
-      throw new Error("Mover is not on a mission");
+      throw new ConflictError("Mover is not on a mission");
     }
 
     // Unload everything, go back to resting, increment missions

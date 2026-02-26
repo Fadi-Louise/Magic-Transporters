@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { container } from "tsyringe";
 import { MagicMoverService } from "../services/MagicMoverService";
+import { AppError } from "../utils/errors";
 
 /**
  * Controller handling Magic Mover HTTP requests.
@@ -74,16 +75,8 @@ export class MagicMoverController {
       const mover = await service.loadItem(req.params.id as string, itemId);
       res.json(mover);
     } catch (error: any) {
-      if (
-        error.message.includes("not found") ||
-        error.message.includes("already loaded")
-      ) {
-        res.status(404).json({ error: error.message });
-      } else if (
-        error.message.includes("Cannot load") ||
-        error.message.includes("Weight limit")
-      ) {
-        res.status(400).json({ error: error.message });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
       } else {
         res.status(500).json({ error: error.message });
       }
@@ -99,13 +92,8 @@ export class MagicMoverController {
       const mover = await service.startMission(req.params.id as string);
       res.json(mover);
     } catch (error: any) {
-      if (error.message.includes("not found")) {
-        res.status(404).json({ error: error.message });
-      } else if (
-        error.message.includes("already on") ||
-        error.message.includes("no items")
-      ) {
-        res.status(400).json({ error: error.message });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
       } else {
         res.status(500).json({ error: error.message });
       }
@@ -121,10 +109,8 @@ export class MagicMoverController {
       const mover = await service.endMission(req.params.id as string);
       res.json(mover);
     } catch (error: any) {
-      if (error.message.includes("not found")) {
-        res.status(404).json({ error: error.message });
-      } else if (error.message.includes("not on a mission")) {
-        res.status(400).json({ error: error.message });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
       } else {
         res.status(500).json({ error: error.message });
       }
