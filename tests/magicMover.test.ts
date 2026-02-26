@@ -89,7 +89,7 @@ describe("Magic Movers API", () => {
       expect(res.status).toBe(400);
     });
 
-    it("should return 400 when mover is on-mission", async () => {
+    it("should return 409 when mover is on-mission", async () => {
       const mover = await createMover("Busy", 100);
       const item1 = await createItem("Item1", 10);
       const item2 = await createItem("Item2", 10);
@@ -105,7 +105,7 @@ describe("Magic Movers API", () => {
         .post(`/api/movers/${mover._id}/load`)
         .send({ itemId: item2._id });
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(409);
     });
 
     it("should return 400 if itemId is missing", async () => {
@@ -145,7 +145,7 @@ describe("Magic Movers API", () => {
       expect(res.status).toBe(400);
     });
 
-    it("should return 400 if already on mission", async () => {
+    it("should return 409 if already on mission", async () => {
       const mover = await createMover("Runner", 100);
       const item = await createItem("Cargo", 30);
 
@@ -158,7 +158,7 @@ describe("Magic Movers API", () => {
         `/api/movers/${mover._id}/start-mission`
       );
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(409);
     });
   });
 
@@ -182,14 +182,14 @@ describe("Magic Movers API", () => {
       expect(res.body.missionsCompleted).toBe(1);
     });
 
-    it("should return 400 if not on a mission", async () => {
+    it("should return 409 if not on a mission", async () => {
       const mover = await createMover("Idle", 100);
 
       const res = await request(app).put(
         `/api/movers/${mover._id}/end-mission`
       );
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(409);
     });
   });
 
