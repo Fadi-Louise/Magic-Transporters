@@ -180,6 +180,11 @@ tests/
 | `npm test`          | Run e2e tests                |
 | `npm run test:coverage` | Run tests with coverage  |
 
-## 📄 License
+## � Future Improvements
+
+- JWT authentication for protected endpoints
+- Rate limiting to prevent abuse
+
+## �📄 License
 
 ISC
